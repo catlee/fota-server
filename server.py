@@ -73,15 +73,14 @@ class Server:
 
         log.debug("Using expiry time: %i", self.expiry_time)
 
-    @asyncio.coroutine
-    def load_whitelist(self):
+    async def load_whitelist(self):
         log.info('loading whitelist...')
         try:
             url = make_object_url(self.bucket_name, self.whitelist_object_name, 'GET', 30)
             log.debug('fetching %s', url)
-            resp = yield from aiohttp.get(url)
+            resp = await aiohttp.get(url)
             log.debug('getting json')
-            data = yield from resp.json()
+            data = await resp.json()
             self.imei_whitelist = set(w['imei'] for w in data['whitelist'])
             log.info('got %i entries', len(self.imei_whitelist))
         except:
@@ -92,8 +91,7 @@ class Server:
                                  self.loop.create_task, self.load_whitelist())
 
 
-    @asyncio.coroutine
-    def handle_request(self, request):
+    async def handle_request(self, request):
         """
         Request handling entry point. This will call each function in
         self.request_processors. If a function returns a truish value, then
